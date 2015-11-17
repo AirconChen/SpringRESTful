@@ -1,0 +1,29 @@
+package com.fpg.ec;
+
+import org.codehaus.jettison.json.JSONObject;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Component
+@RequestMapping("/ws")
+//@Consumes(MediaType.APPLICATION_JSON)
+public class MyRest {
+
+	
+	@GET
+	@RequestMapping("/hello")
+//	@Consumes(MediaType.APPLICATION_JSON)
+	//@Produces(MediaType.APPLICATION_JSON)
+	public String test() throws Exception {
+		return "hello";
+	}
+	
+	@POST
+	@Path("/hello2")
+	@Consumes(MediaType.APPLICATION_JSON)
+	//@Produces(MediaType.APPLICATION_JSON)
+	public void test2(JSONObject iJSONObject) throws Exception {
+		System.out.println("iJSONObject:"+iJSONObject);
+	}
+}

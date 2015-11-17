@@ -1,0 +1,7 @@
+package com.fpg.ec;
+
+@Component
+@Path("/account")
+public class MyRest {
+
+}

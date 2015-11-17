@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+				http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+				http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+				
+    <!--- JDBC直接連線 -->
+    <!-- 	
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url" value="jdbc:sqlserver://10.3.226.97:1433;DatabaseName=wvsp20" />
+		<property name="username" value="uxdspp" />
+		<property name="password" value="uxdspp" />
+	</bean>
+	 -->
+		
+	<!-- JNDI For WebSphere -->
+	<!-- 
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean"> 
+        <property name="jndiName" value="jdbc/sp"/> 
+        <property name="lookupOnStartup" value="false" />
+		<property name="cache" value="true" />
+		<property name="proxyInterface" value="javax.sql.DataSource" />
+        
+    </bean>
+	-->
+	
+	<!-- JNDI For Tomcat -->       
+	<!-- -->
+    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean"> 
+        <property name="jndiName">  
+            <value>java:comp/env/jdbc/ngb2</value> 
+        </property>  
+    </bean>
+	<!-- -->
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	
+	<!-- AOP管理資料庫交易 Transaction Manager advice -->
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*" isolation="READ_COMMITTED" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+        </tx:attributes> 
+    </tx:advice>
+    
+	<!--     AOP管理資料庫交易直接將Transaction Managet直接注入到BO METHOD中 -->
+    <aop:config>
+        <aop:pointcut id="transactionPointcut" expression="execution(* com.fpg.ec.*.bo.*.*(..))"/>
+        <aop:advisor pointcut-ref="transactionPointcut" advice-ref="transactionAdvice"/>
+    </aop:config>	
+    
+	<!-- Integrated iBATIS -->
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocations">
+			<list>
+				<value>classpath:sqlMapConfig_Authority.xml</value>
+				<value>classpath:sqlMapConfig_System.xml</value>
+				<value>classpath:sqlMapConfig_Email.xml</value>
+				<value>classpath:sqlMapConfig_Bid.xml</value>
+				<value>classpath:sqlMapConfig_Basis.xml</value>
+			</list>
+		</property>
+	</bean>
+	<import resource="classpath:applicationContext_Authority.xml" />
+	<import resource="classpath:applicationContext_System.xml" />
+	<import resource="classpath:applicationContext_Email.xml" />
+	<import resource="classpath:applicationContext_Bid.xml" />
+	<import resource="classpath:applicationContext_Basis.xml" />
+
+
+	<!-- 	啟用Annotation -->
+	<context:annotation-config/>
+	<context:component-scan base-package="com.fpg.ec.ws" />
+
+<!-- 	<bean id="inqueryWebService" class="com.fpg.ec.ws.InqueryWebService"> -->
+<!-- 		<property name="authorityBO"> -->
+<!-- 			<ref bean="authorityBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="systemBO"> -->
+<!-- 			<ref bean="systemBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="emailBO"> -->
+<!-- 			<ref bean="emailBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="bidBO"> -->
+<!-- 			<ref bean="bidBO" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="sellerWebService" class="com.fpg.ec.ws.SellerWebService"> -->
+<!-- 		<property name="authorityBO"> -->
+<!-- 			<ref bean="authorityBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="systemBO"> -->
+<!-- 			<ref bean="systemBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="emailBO"> -->
+<!-- 			<ref bean="emailBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="bidBO"> -->
+<!-- 			<ref bean="bidBO" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="buyerWebService" class="com.fpg.ec.ws.BuyerWebService"> -->
+<!-- 		<property name="authorityBO"> -->
+<!-- 			<ref bean="authorityBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="systemBO"> -->
+<!-- 			<ref bean="systemBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="emailBO"> -->
+<!-- 			<ref bean="emailBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="bidBO"> -->
+<!-- 			<ref bean="bidBO" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="mngerWebService" class="com.fpg.ec.ws.MngerWebService"> -->
+<!-- 		<property name="authorityBO"> -->
+<!-- 			<ref bean="authorityBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="systemBO"> -->
+<!-- 			<ref bean="systemBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="emailBO"> -->
+<!-- 			<ref bean="emailBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="bidBO"> -->
+<!-- 			<ref bean="bidBO" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="companyWebService" class="com.fpg.ec.ws.CompanyWebService"> -->
+<!-- 		<property name="authorityBO"> -->
+<!-- 			<ref bean="authorityBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="systemBO"> -->
+<!-- 			<ref bean="systemBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="emailBO"> -->
+<!-- 			<ref bean="emailBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="bidBO"> -->
+<!-- 			<ref bean="bidBO" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="accountWebService" class="com.fpg.ec.ws.AccountWebService"> -->
+<!-- 		<property name="authorityBO"> -->
+<!-- 			<ref bean="authorityBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="systemBO"> -->
+<!-- 			<ref bean="systemBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="emailBO"> -->
+<!-- 			<ref bean="emailBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="bidBO"> -->
+<!-- 			<ref bean="bidBO" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="portalWebService" class="com.fpg.ec.ws.PortalWebService"> -->
+<!-- 		<property name="authorityBO"> -->
+<!-- 			<ref bean="authorityBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="systemBO"> -->
+<!-- 			<ref bean="systemBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="emailBO"> -->
+<!-- 			<ref bean="emailBO" /> -->
+<!-- 		</property> -->
+<!-- 		<property name="bidBO"> -->
+<!-- 			<ref bean="bidBO" /> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+</beans>
